@@ -13,11 +13,17 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout, user, activePage, onNavigate }) => {
   const navItems = [
-    { id: Page.Dashboard, path: '/dashboard', label: 'Dashboard', icon: 'grid_view' },
-    { id: Page.Jobs, path: '/jobs', label: 'Jobs', icon: 'business_center' },
-    { id: Page.Candidates, path: '/candidates', label: 'Candidates', icon: 'people' },
-    { id: Page.BulkUpload, path: '/bulk-upload', label: 'Upload', icon: 'cloud_upload' },
+    { id: Page.Home, path: '/dashboard', label: 'Home', icon: 'home' },
+    { id: Page.Chat, path: '/chat', label: 'Chat', icon: 'chat_bubble' },
+    { id: Page.Discover, path: '/discover', label: 'Discover', icon: 'explore' },
+    { id: Page.ResumeScore, path: '/resume-score', label: 'Resume Score', icon: 'military_tech' },
+    { id: Page.Plugins, path: '/plugins', label: 'Plugins', icon: 'category' },
+    { id: 'divider', path: '', label: '', icon: '' },
+    { id: Page.Community, path: '/community', label: 'Community', icon: 'groups', badge: 'NEW' },
+    { id: Page.Plans, path: '/plans', label: 'Plans', icon: 'crown' },
+    { id: Page.Settings, path: '/settings', label: 'Settings', icon: 'settings' },
   ];
+
 
   return (
     <>
@@ -48,29 +54,40 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout, user, acti
         </div>
 
         <nav className="flex-1 space-y-2">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.id}
-              to={item.path}
-              onClick={onClose}
-              className={({ isActive }) => `
-                w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group
-                ${isActive
-                  ? 'bg-white text-primary shadow-soft font-semibold'
-                  : 'text-text-secondary hover:bg-blue-50/50 hover:text-primary'
-                }
-              `}
-            >
-              {({ isActive }) => (
-                <>
-                  <span className={`material-symbols-outlined text-[22px] ${isActive ? 'filled' : ''}`}>
-                    {item.icon}
-                  </span>
-                  <span className="lg:block text-[15px]">{item.label}</span>
-                </>
-              )}
-            </NavLink>
-          ))}
+          {navItems.map((item) => {
+            if (item.id === 'divider') {
+              return <div key="divider" className="my-4 border-t border-text-tertiary/20" />;
+            }
+            return (
+              <NavLink
+                key={item.id}
+                to={item.path}
+                onClick={onClose}
+                className={({ isActive }) => `
+                  w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group
+                  ${isActive
+                    ? 'bg-primary/10 text-primary shadow-sm font-semibold'
+                    : 'text-text-secondary hover:bg-blue-50/50 hover:text-primary'
+                  }
+                `}
+              >
+                {({ isActive }) => (
+                  <>
+                    <span className={`material-symbols-outlined text-[22px] ${isActive ? 'filled' : ''}`}>
+                      {item.icon}
+                    </span>
+                    <span className="lg:block text-[15px] flex-1">{item.label}</span>
+                    {item.badge && (
+                      <span className="bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-bold tracking-wider">
+                        {item.badge}
+                      </span>
+                    )}
+                  </>
+                )}
+              </NavLink>
+            );
+          })}
+
         </nav>
 
         <div className="mt-auto flex flex-col gap-4">
@@ -86,24 +103,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout, user, acti
 
           <div className="flex gap-2 justify-start lg:px-2">
             <button
-              onClick={() => {
-                onNavigate(Page.Settings);
-                onClose();
-              }}
-              className={`size-11 rounded-xl flex items-center justify-center shadow-soft transition-all hover:scale-105 ${activePage === Page.Settings ? 'bg-primary text-white' : 'bg-white text-text-secondary hover:text-primary hover:bg-blue-50'
-                }`}
-              title="Settings"
-            >
-              <span className="material-symbols-outlined text-[20px]">settings</span>
-            </button>
-            <button
               onClick={onLogout}
-              className="size-11 rounded-xl bg-white flex items-center justify-center text-text-secondary hover:text-accent-red hover:bg-red-50 shadow-soft transition-all hover:scale-105"
+              className="size-11 rounded-xl bg-white border border-blue-50 flex items-center justify-center text-text-secondary hover:text-accent-red hover:bg-red-50 shadow-soft transition-all hover:scale-105"
               title="Logout"
             >
               <span className="material-symbols-outlined text-[20px]">logout</span>
             </button>
           </div>
+
         </div>
       </aside>
     </>

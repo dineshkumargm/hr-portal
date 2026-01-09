@@ -126,7 +126,7 @@ export const extractJobDetailsFromPDF = async (file: File): Promise<ExtractedJob
 
 export const analyzeResume = async (
     file: File,
-    jobContext: { title: string, skills: string[] }
+    jobContext: { title: string, skills: string[], description?: string }
 ): Promise<ExtractedResumeDetails> => {
     if (!API_KEY) {
         throw new Error("Gemini API Key is missing.");
@@ -163,6 +163,7 @@ export const analyzeResume = async (
                 text: `Perform a Deep-Match Analysis of this resume against the following role:
                 - Title: ${jobContext.title}
                 - Key Skills: ${jobContext.skills.join(', ')}
+                ${jobContext.description ? `- Job Description: ${jobContext.description.substring(0, 1000)}...` : ''}
                 
                 You must extract the following strictly:
                 1. candidateName: Look for the most prominent name at the top. If not found, use a short, professional placeholder.

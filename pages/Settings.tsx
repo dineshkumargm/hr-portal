@@ -2,9 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import { User } from '../types';
 
-const Settings: React.FC = () => {
+interface SettingsProps {
+    onUserUpdate?: (user: User) => void;
+}
+
+const Settings: React.FC<SettingsProps> = ({ onUserUpdate }) => {
     const [user, setUser] = useState<User | null>(db.getUser());
     const [saving, setSaving] = useState(false);
+    const [avatar, setAvatar] = useState<string | undefined>(user?.avatar);
+
 
     // Form State
     const [companyName, setCompanyName] = useState('');
@@ -20,7 +26,9 @@ const Settings: React.FC = () => {
                 const freshUser = await db.refreshUser(user.id);
                 if (freshUser) {
                     setUser(freshUser);
+                    setAvatar(freshUser.avatar);
                     // Initialize settings if they exist
+
                     if (freshUser.settings) {
                         setCompanyName(freshUser.settings.companyName || 'RecruitAI Global');
                         setIndustry(freshUser.settings.industry || 'Technology');
@@ -34,19 +42,38 @@ const Settings: React.FC = () => {
         fetchUserData();
     }, []);
 
+    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result as string;
+            setAvatar(base64String);
+        };
+        reader.readAsDataURL(file);
+    };
+
+
     const handleSave = async () => {
         if (!user?.id) return;
         setSaving(true);
         try {
             const updatedSettings = {
-                companyName,
-                industry,
-                aiRigorous,
                 aiBiasRedaction,
                 emailDigests
             };
-            await db.updateUser(user.id, { settings: updatedSettings });
+            const updatedUser = await db.updateUser(user.id, {
+                settings: updatedSettings,
+                avatar: avatar
+            });
+
+            if (onUserUpdate) {
+                onUserUpdate(updatedUser);
+            }
+
             // Optional: toast notification here
+
             const btn = document.getElementById('save-btn');
             if (btn) btn.innerText = 'Saved!';
             setTimeout(() => { if (btn) btn.innerText = 'Save System Preferences'; }, 2000);
@@ -102,6 +129,48 @@ const Settings: React.FC = () => {
                         </div>
                     </div>
                 </section>
+
+                <section className="bg-white rounded-[2.5rem] p-8 shadow-soft border border-blue-50">
+                    <h2 className="text-xl font-bold text-text-main mb-6 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary">person</span>
+                        Personal Profile
+                    </h2>
+                    <div className="flex flex-col md:flex-row items-center gap-8">
+                        <div className="relative group">
+                            <div
+                                className="size-32 rounded-full bg-cover bg-center border-4 border-white shadow-lg overflow-hidden relative"
+                                style={{ backgroundImage: `url(${avatar || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=0d33f2&color=fff`})` }}
+                            >
+                                <label className="absolute inset-0 bg-primary/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center cursor-pointer text-white">
+                                    <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
+                                    <span className="material-symbols-outlined text-2xl mb-1">photo_camera</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Update</span>
+                                </label>
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 size-8 bg-emerald-500 text-white rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                                <span className="material-symbols-outlined text-xs">check</span>
+                            </div>
+                        </div>
+                        <div className="flex-1 space-y-4 text-center md:text-left">
+                            <div>
+                                <h3 className="text-lg font-bold text-text-main">{user?.name}</h3>
+                                <p className="text-sm text-text-tertiary">{user?.email}</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                                <span className="px-3 py-1 bg-blue-50 text-primary text-[10px] font-bold uppercase tracking-wider rounded-lg border border-blue-100">
+                                    Verified Recruiter
+                                </span>
+                                <span className="px-3 py-1 bg-purple-50 text-purple-600 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-purple-100">
+                                    Enterprise Plan
+                                </span>
+                            </div>
+                            <p className="text-xs text-text-tertiary italic">
+                                * Your profile photo will be visible to candidates and team members across the platform.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
 
                 <section className="bg-white rounded-[2.5rem] p-8 shadow-soft border border-blue-50">
                     <h2 className="text-xl font-bold text-text-main mb-6 flex items-center gap-2">

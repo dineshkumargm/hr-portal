@@ -3,14 +3,21 @@ export enum Page {
   Landing = 'landing',
   Login = 'login',
   Register = 'register',
-  Dashboard = 'dashboard',
+  Home = 'dashboard',
   Jobs = 'jobs',
   Candidates = 'candidates',
   CandidateDetail = 'candidate-detail',
   BulkUpload = 'bulk-upload',
   Profile = 'profile',
-  Settings = 'settings'
+  Settings = 'settings',
+  ResumeScore = 'resume-score',
+  Plugins = 'plugins',
+  Community = 'community',
+  Chat = 'chat',
+  Discover = 'discover',
+  Plans = 'plans'
 }
+
 
 export interface User {
   id: string;
@@ -61,6 +68,7 @@ export interface Job {
   applicantsCount: number;
   matchesCount: number;
   skills: string[];
+  description?: string;
   jdUrl?: string;
   jdFileName?: string;
   userId?: string;

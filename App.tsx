@@ -13,8 +13,14 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import ProtectedRoute from './components/ProtectedRoute';
+import ResumeScore from './pages/ResumeScore';
+import Chat from './pages/Chat';
+import Plugins from './pages/Plugins';
+import Discover from './pages/Discover';
+import Plans from './pages/Plans';
 import { db } from './services/db';
+
+
 
 
 
@@ -35,6 +41,11 @@ const AppContent: React.FC = () => {
     navigate('/dashboard');
   };
 
+  const handleUserUpdate = (updatedUser: User) => {
+    setUser(updatedUser);
+  };
+
+
   const isPublicPage = ['/', '/login', '/register'].includes(location.pathname);
 
   if (!user && !isPublicPage) {
@@ -47,9 +58,10 @@ const AppContent: React.FC = () => {
 
   const getActivePage = () => {
     const path = location.pathname.substring(1);
-    if (!path || path === '') return Page.Dashboard;
+    if (!path || path === '' || path === 'dashboard') return Page.Home;
     return path as Page;
   };
+
 
   return (
     <div className="flex h-screen w-full bg-[#EAEAEA] md:p-4 lg:p-6 overflow-hidden">
@@ -78,8 +90,18 @@ const AppContent: React.FC = () => {
                 <Route path="/candidate-detail/:id" element={<CandidateDetail />} />
                 <Route path="/bulk-upload" element={<BulkUpload />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/settings" element={<Settings onUserUpdate={handleUserUpdate} />} />
+
+                <Route path="/resume-score" element={<ResumeScore />} />
+                <Route path="/chat" element={<Chat />} />
+                <Route path="/discover" element={<Discover />} />
+                <Route path="/plans" element={<Plans />} />
+
+                <Route path="/plugins" element={<Plugins />} />
+                <Route path="/community" element={<Navigate to="/dashboard" replace />} />
+
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
               </Routes>
             </main>
           </div>

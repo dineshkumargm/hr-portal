@@ -16,7 +16,9 @@ const Header: React.FC<HeaderProps> = ({ title, onMenuClick, user }) => {
         >
           <span className="material-symbols-outlined">menu</span>
         </button>
-        <h2 className="text-xl md:text-3xl font-bold text-text-main tracking-tight truncate max-w-[150px] md:max-w-none">{title}</h2>
+        <h2 className="text-xl md:text-3xl font-bold text-text-main tracking-tight truncate max-w-[150px] md:max-w-none">
+          {title === 'DASHBOARD' ? 'HOME' : title}
+        </h2>
       </div>
 
       <div className="flex items-center gap-3 md:gap-6">
