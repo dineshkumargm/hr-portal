@@ -18,16 +18,14 @@ import Plugins from './pages/Plugins';
 import Community from './pages/Community';
 import { db } from './services/db';
 
-
-
 const AppContent: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = useState<User | null>(db.getUser());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const handleLogout = async () => {
-    await db.logout();
+  const handleLogout = () => {
+    db.logout();
     setUser(null);
     navigate('/');
   };
