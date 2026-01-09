@@ -142,9 +142,36 @@ class MongoDB {
     localStorage.removeItem('user');
   }
 
+  async refreshUser(): Promise<User | null> {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return null;
+    try {
+      const response = await fetch(`${API_BASE}/users/${userId}`);
+      if (response.ok) {
+        const user = await response.json();
+        this.setSession(user);
+        return user;
+      }
+    } catch (e) {
+      console.error("Failed to fetch fresh user from server", e);
+    }
+    return this.getUser();
+  }
+
   private setSession(user: User) {
+    if (!user.id) return;
     localStorage.setItem('userId', user.id);
-    localStorage.setItem('user', JSON.stringify(user));
+    try {
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch (e) {
+      console.warn("localStorage quota exceeded. Storing user without avatar.");
+      const { avatar, ...userWithoutAvatar } = user;
+      try {
+        localStorage.setItem('user', JSON.stringify(userWithoutAvatar));
+      } catch (innerError) {
+        console.error("Critical: localStorage is completely full.", innerError);
+      }
+    }
   }
 
   getUser(): User | null {

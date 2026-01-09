@@ -14,6 +14,8 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import ResumeScore from './pages/ResumeScore';
 import Chat from './pages/Chat';
+import Plugins from './pages/Plugins';
+import Community from './pages/Community';
 import { db } from './services/db';
 
 
@@ -35,6 +37,11 @@ const AppContent: React.FC = () => {
     navigate('/dashboard');
   };
 
+  const refreshUser = async () => {
+    const freshUser = await db.refreshUser();
+    setUser(freshUser);
+  };
+
   const isPublicPage = ['/', '/login', '/register'].includes(location.pathname);
 
   if (!user && !isPublicPage) {
@@ -52,9 +59,9 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#EAEAEA] md:p-4 lg:p-6 overflow-hidden">
+    <div className="flex h-screen w-full bg-[#EAEAEA] md:p-2 lg:p-3 overflow-y-auto md:overflow-hidden">
       {!isPublicPage && user ? (
-        <div className="flex h-full w-full max-w-[1600px] bg-background-main md:rounded-[2.5rem] overflow-hidden shadow-2xl mx-auto border border-white/20 relative">
+        <div className="flex h-full w-full max-w-[1600px] bg-background-main md:rounded-[1.5rem] overflow-hidden shadow-2xl mx-auto border border-white/20 relative">
           <Sidebar
             activePage={getActivePage()}
             onNavigate={(page) => navigate(`/${page}`)}
@@ -70,19 +77,18 @@ const AppContent: React.FC = () => {
               onMenuClick={() => setIsSidebarOpen(true)}
               user={user}
             />
-            <main className="flex-1 overflow-y-auto px-4 md:px-10 lg:px-12 pb-10 no-scrollbar">
+            <main className="flex-1 overflow-y-auto px-5 md:px-6 lg:px-8 pb-8 no-scrollbar">
               <Routes>
                 <Route path="/dashboard" element={<Dashboard onJobClick={(id) => navigate(`/candidates?jobId=${id}`)} />} />
                 <Route path="/jobs" element={<JobManagement />} />
                 <Route path="/candidates" element={<Candidates onCandidateClick={(id) => navigate(`/candidate-detail/${id}`)} />} />
                 <Route path="/candidate-detail/:id" element={<CandidateDetail />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/profile" element={<Profile onUserUpdate={refreshUser} />} />
+                <Route path="/settings" element={<Settings onUserUpdate={refreshUser} />} />
                 <Route path="/resume-score" element={<ResumeScore />} />
                 <Route path="/chat" element={<Chat />} />
-                {/* Placeholders for Plugins and Community */}
-                <Route path="/plugins" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/community" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/plugins" element={<Plugins />} />
+                <Route path="/community" element={<Community />} />
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>
             </main>

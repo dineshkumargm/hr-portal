@@ -138,7 +138,9 @@ app.post('/api/auth/register', async (req, res) => {
         const id = `u-${Date.now()}`;
         const user = new User({ id, name, email, password });
         await user.save();
-        res.json({ id: user.id, name: user.name, email: user.email });
+        const userObj = user.toObject();
+        delete userObj.password;
+        res.json(userObj);
     } catch (err) {
         console.error('Registration error:', err);
         res.status(500).json({ error: err.message });
@@ -150,16 +152,15 @@ app.post('/api/auth/login', async (req, res) => {
         const { email, password } = req.body;
         console.log(`Login attempt: email=${email}, password=${password}`);
 
-        const allUsers = await User.find({});
-        console.log('Current users in DB:', allUsers.map(u => ({ email: u.email, password: u.password })));
-
         const user = await User.findOne({ email, password });
         if (!user) {
             console.log('Login failed: Invalid credentials');
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         console.log('Login successful:', user.email);
-        res.json({ id: user.id, name: user.name, email: user.email });
+        const userObj = user.toObject();
+        delete userObj.password;
+        res.json(userObj);
     } catch (err) {
         console.error('Login error:', err);
         res.status(500).json({ error: err.message });
