@@ -2,9 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import { User } from '../types';
 
-const Settings: React.FC = () => {
+const Settings: React.FC<{ onUserUpdate?: () => void }> = ({ onUserUpdate }) => {
     const [user, setUser] = useState<User | null>(db.getUser());
     const [saving, setSaving] = useState(false);
+
+    // Personal Profile State
+    const [displayName, setDisplayName] = useState(user?.name || '');
+    const [title, setTitle] = useState(user?.title || '');
+    const [avatar, setAvatar] = useState(user?.avatar || '');
 
     // Form State
     const [companyName, setCompanyName] = useState('');
@@ -20,6 +25,10 @@ const Settings: React.FC = () => {
                 const freshUser = await db.refreshUser(user.id);
                 if (freshUser) {
                     setUser(freshUser);
+                    setDisplayName(freshUser.name || '');
+                    setTitle(freshUser.title || '');
+                    setAvatar(freshUser.avatar || '');
+
                     // Initialize settings if they exist
                     if (freshUser.settings) {
                         setCompanyName(freshUser.settings.companyName || 'RecruitAI Global');
@@ -34,22 +43,78 @@ const Settings: React.FC = () => {
         fetchUserData();
     }, []);
 
+    const compressImage = (base64: string): Promise<string> => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = base64;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 400;
+                const MAX_HEIGHT = 400;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx?.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to 70% quality
+            };
+        });
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64 = reader.result as string;
+                const compressed = await compressImage(base64);
+                setAvatar(compressed);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleSave = async () => {
         if (!user?.id) return;
         setSaving(true);
         try {
-            const updatedSettings = {
-                companyName,
-                industry,
-                aiRigorous,
-                aiBiasRedaction,
-                emailDigests
+            const updatedData = {
+                name: displayName,
+                title,
+                avatar,
+                settings: {
+                    companyName,
+                    industry,
+                    aiRigorous,
+                    aiBiasRedaction,
+                    emailDigests
+                }
             };
-            await db.updateUser(user.id, { settings: updatedSettings });
+            await db.updateUser(user.id, updatedData);
+
+            if (onUserUpdate) onUserUpdate();
+
             // Optional: toast notification here
             const btn = document.getElementById('save-btn');
-            if (btn) btn.innerText = 'Saved!';
-            setTimeout(() => { if (btn) btn.innerText = 'Save System Preferences'; }, 2000);
+            if (btn) {
+                const originalText = btn.innerText;
+                btn.innerText = 'Saved Successfully!';
+                setTimeout(() => { if (btn) btn.innerText = originalText; }, 2000);
+            }
         } catch (e) {
             console.error("Failed to save settings", e);
             alert("Failed to save settings");
@@ -71,6 +136,53 @@ const Settings: React.FC = () => {
             </div>
 
             <div className="space-y-8">
+                <section className="bg-white rounded-[2.5rem] p-8 shadow-soft border border-blue-50">
+                    <h2 className="text-xl font-bold text-text-main mb-8 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary">person</span>
+                        Personal Profile
+                    </h2>
+
+                    <div className="flex flex-col md:flex-row gap-10 items-start">
+                        {/* Avatar Upload */}
+                        <div className="relative group mx-auto md:mx-0">
+                            <div
+                                className="size-32 rounded-full border-4 border-white shadow-xl bg-cover bg-center overflow-hidden transition-all group-hover:brightness-75"
+                                style={{ backgroundImage: `url(${avatar || `https://ui-avatars.com/api/?name=${displayName || 'User'}&background=0d33f2&color=fff`})` }}
+                            >
+                                <label className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-bold uppercase tracking-widest">
+                                    <span className="material-symbols-outlined text-2xl mb-1">photo_camera</span>
+                                    Edit
+                                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                                </label>
+                            </div>
+                            <div className="absolute -bottom-2 -right-2 bg-primary text-white size-8 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                                <span className="material-symbols-outlined text-sm">edit</span>
+                            </div>
+                        </div>
+
+                        <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-text-tertiary uppercase tracking-widest ml-1">Full Name</label>
+                                <input
+                                    className="w-full h-14 bg-background-main border-none rounded-2xl px-5 text-sm font-bold text-text-main focus:ring-2 focus:ring-primary/20 transition-all"
+                                    value={displayName}
+                                    onChange={(e) => setDisplayName(e.target.value)}
+                                    placeholder="Your Name"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-text-tertiary uppercase tracking-widest ml-1">Professional Title</label>
+                                <input
+                                    className="w-full h-14 bg-background-main border-none rounded-2xl px-5 text-sm font-bold text-text-main focus:ring-2 focus:ring-primary/20 transition-all"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    placeholder="Senior Tech Recruiter"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <section className="bg-white rounded-[2.5rem] p-8 shadow-soft border border-blue-50">
                     <h2 className="text-xl font-bold text-text-main mb-6 flex items-center gap-2">
                         <span className="material-symbols-outlined text-primary">account_circle</span>

@@ -12,11 +12,16 @@ const Landing: React.FC<LandingProps> = () => {
             {/* Navbar */}
             <header className="sticky top-0 z-50 w-full glass-panel border-b border-[#e7e9f4] dark:border-gray-800 transition-all duration-200">
                 <div className="px-4 md:px-10 lg:px-40 py-3 flex items-center justify-between">
-                    <Link to="/" className="flex items-center gap-4 text-text-main dark:text-white cursor-pointer group">
-                        <div className="size-8 rounded-lg bg-[#0d33f2] flex items-center justify-center text-white transition-transform group-hover:scale-110 shadow-glow">
-                            <span className="material-symbols-outlined text-xl">analytics</span>
+                    <Link to="/" className="flex items-center gap-3 text-text-main dark:text-white cursor-pointer group">
+                        <div className="size-10 rounded-xl bg-gradient-to-br from-[#0d33f2] to-[#1e40af] flex items-center justify-center text-white transition-all group-hover:scale-110 shadow-lg shadow-blue-500/20">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L4 7V17L12 22L20 17V7L12 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <circle cx="12" cy="12" r="3" fill="white" />
+                            </svg>
                         </div>
-                        <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">AI Resume Shortlist</h2>
+                        <h2 className="text-xl tracking-tight">
+                            <span className="text-primary font-black">Agent</span> <span className="font-bold">KAI</span>
+                        </h2>
                     </Link>
                     <div className="hidden md:flex flex-1 justify-end gap-8 items-center">
                         <div className="flex items-center gap-6">
@@ -202,7 +207,7 @@ const Landing: React.FC<LandingProps> = () => {
                             <div className="size-6 rounded bg-[#0d33f2] flex items-center justify-center text-white">
                                 <span className="material-symbols-outlined text-sm">analytics</span>
                             </div>
-                            <span className="font-bold text-lg">AI Resume Shortlist</span>
+                            <span className="text-lg tracking-tight"><span className="text-primary font-black">Agent</span> <span className="font-bold">KAI</span></span>
                         </div>
                         <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-xs"> The next generation AI-powered recruitment platform helping companies build better teams, faster. </p>
                     </div>
@@ -228,7 +233,7 @@ const Landing: React.FC<LandingProps> = () => {
                     </div>
                 </div>
                 <div className="max-w-[1280px] mx-auto border-t border-gray-100 dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-sm text-gray-400">© 2023 AI Resume Shortlist. All rights reserved.</p>
+                    <p className="text-sm text-gray-400">© 2026 Agent KAI. All rights reserved.</p>
                     <div className="flex gap-4">
                         <a className="text-gray-400 hover:text-[#0d33f2]" href="#"><span className="material-symbols-outlined text-lg">mail</span></a>
                         <a className="text-gray-400 hover:text-[#0d33f2]" href="#"><span className="material-symbols-outlined text-lg">public</span></a>
