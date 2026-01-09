@@ -16,7 +16,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout, user, acti
     { id: Page.Dashboard, path: '/dashboard', label: 'Dashboard', icon: 'grid_view' },
     { id: Page.Jobs, path: '/jobs', label: 'Jobs', icon: 'business_center' },
     { id: Page.Candidates, path: '/candidates', label: 'Candidates', icon: 'people' },
-    { id: Page.BulkUpload, path: '/bulk-upload', label: 'Upload', icon: 'cloud_upload' },
+    { id: Page.ResumeScore, path: '/resume-score', label: 'Resume Score', icon: 'description' },
+    { id: 'chat' as Page, path: '/chat', label: 'AI Assistant', icon: 'chat_bubble' },
+    { id: Page.Plugins, path: '/plugins', label: 'Plugins', icon: 'extension' },
+    { id: Page.Community, path: '/community', label: 'Community', icon: 'groups' },
   ];
 
   return (

@@ -9,7 +9,10 @@ export enum Page {
   CandidateDetail = 'candidate-detail',
   BulkUpload = 'bulk-upload',
   Profile = 'profile',
-  Settings = 'settings'
+  Settings = 'settings',
+  ResumeScore = 'resume-score',
+  Plugins = 'plugins',
+  Community = 'community'
 }
 
 export interface User {
@@ -61,6 +64,7 @@ export interface Job {
   applicantsCount: number;
   matchesCount: number;
   skills: string[];
+  description?: string;
   jdUrl?: string;
   jdFileName?: string;
   userId?: string;

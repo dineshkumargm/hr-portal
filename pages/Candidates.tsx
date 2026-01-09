@@ -20,6 +20,7 @@ const Candidates: React.FC<CandidatesProps> = ({ onCandidateClick }) => {
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [filterScoreRange, setFilterScoreRange] = useState<string>('All');
   const [locationSearch, setLocationSearch] = useState<string>('');
+  const [filterDateRange, setFilterDateRange] = useState<string>('All');
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -56,6 +57,68 @@ const Candidates: React.FC<CandidatesProps> = ({ onCandidateClick }) => {
     setSearchParams({ jobId });
   };
 
+  // Helper function to parse date from various formats
+  const parseDate = (dateString: string): Date | null => {
+    if (!dateString) return null;
+    
+    // Try parsing common date formats
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      return date;
+    }
+    
+    // Try parsing formats like "Jan 9, 2026"
+    const parsed = Date.parse(dateString);
+    if (!isNaN(parsed)) {
+      return new Date(parsed);
+    }
+    
+    return null;
+  };
+
+  // Helper function to check if date matches filter
+  const matchesDateFilter = (candidateDate: string): boolean => {
+    if (filterDateRange === 'All') return true;
+    
+    const candidateDateObj = parseDate(candidateDate);
+    if (!candidateDateObj) return true; // If can't parse, include it
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const candidateDateOnly = new Date(candidateDateObj.getFullYear(), candidateDateObj.getMonth(), candidateDateObj.getDate());
+    
+    switch (filterDateRange) {
+      case 'Today':
+        return candidateDateOnly.getTime() === today.getTime();
+      
+      case 'Last 7 Days':
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        return candidateDateOnly >= sevenDaysAgo && candidateDateOnly <= today;
+      
+      case 'Last 30 Days':
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        return candidateDateOnly >= thirtyDaysAgo && candidateDateOnly <= today;
+      
+      case 'This Month':
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        return candidateDateOnly >= firstDayOfMonth && candidateDateOnly <= today;
+      
+      case 'Last Month':
+        const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+        return candidateDateOnly >= firstDayLastMonth && candidateDateOnly <= lastDayLastMonth;
+      
+      case 'This Year':
+        const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
+        return candidateDateOnly >= firstDayOfYear && candidateDateOnly <= today;
+      
+      default:
+        return true;
+    }
+  };
+
   const filteredCandidates = useMemo(() => {
     return candidates.filter(c => {
       const matchStatus = filterStatus === 'All' || c.status === filterStatus;
@@ -68,9 +131,11 @@ const Candidates: React.FC<CandidatesProps> = ({ onCandidateClick }) => {
       const matchLocation = !locationSearch ||
         c.location.toLowerCase().includes(locationSearch.toLowerCase());
 
-      return matchStatus && matchScore && matchLocation;
+      const matchDate = matchesDateFilter(c.appliedDate);
+
+      return matchStatus && matchScore && matchLocation && matchDate;
     });
-  }, [candidates, filterStatus, filterScoreRange, locationSearch]);
+  }, [candidates, filterStatus, filterScoreRange, locationSearch, filterDateRange]);
 
   const selectedJob = jobs.find(j => j.id === selectedJobId);
 
@@ -78,6 +143,7 @@ const Candidates: React.FC<CandidatesProps> = ({ onCandidateClick }) => {
     setFilterStatus('All');
     setFilterScoreRange('All');
     setLocationSearch('');
+    setFilterDateRange('All');
   };
 
   return (
@@ -139,7 +205,7 @@ const Candidates: React.FC<CandidatesProps> = ({ onCandidateClick }) => {
         </div>
 
         {/* Filter Bar */}
-        <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 overflow-hidden transition-all duration-300 ease-in-out ${showFilters ? 'max-h-[500px] md:max-h-40 opacity-100 mt-2 pb-2' : 'max-h-0 opacity-0'}`}>
+        <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 overflow-hidden transition-all duration-300 ease-in-out ${showFilters ? 'max-h-[600px] md:max-h-40 opacity-100 mt-2 pb-2' : 'max-h-0 opacity-0'}`}>
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-text-tertiary uppercase ml-1">Status</label>
             <select
@@ -167,6 +233,23 @@ const Candidates: React.FC<CandidatesProps> = ({ onCandidateClick }) => {
               <option value="High">High Match (80%+)</option>
               <option value="Medium">Medium (50-79%)</option>
               <option value="Low">Low Match (&lt;50%)</option>
+            </select>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-text-tertiary uppercase ml-1">Date Stored</label>
+            <select
+              value={filterDateRange}
+              onChange={(e) => setFilterDateRange(e.target.value)}
+              className="w-full h-11 bg-background-main border-none rounded-xl text-xs font-bold text-text-main focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="All">All Dates</option>
+              <option value="Today">Today</option>
+              <option value="Last 7 Days">Last 7 Days</option>
+              <option value="Last 30 Days">Last 30 Days</option>
+              <option value="This Month">This Month</option>
+              <option value="Last Month">Last Month</option>
+              <option value="This Year">This Year</option>
             </select>
           </div>
 

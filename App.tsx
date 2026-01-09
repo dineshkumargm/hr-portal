@@ -7,13 +7,13 @@ import Dashboard from './pages/Dashboard';
 import JobManagement from './pages/JobManagement';
 import Candidates from './pages/Candidates';
 import CandidateDetail from './pages/CandidateDetail';
-import BulkUpload from './pages/BulkUpload';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import ProtectedRoute from './components/ProtectedRoute';
+import ResumeScore from './pages/ResumeScore';
+import Chat from './pages/Chat';
 import { db } from './services/db';
 
 
@@ -76,9 +76,13 @@ const AppContent: React.FC = () => {
                 <Route path="/jobs" element={<JobManagement />} />
                 <Route path="/candidates" element={<Candidates onCandidateClick={(id) => navigate(`/candidate-detail/${id}`)} />} />
                 <Route path="/candidate-detail/:id" element={<CandidateDetail />} />
-                <Route path="/bulk-upload" element={<BulkUpload />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/resume-score" element={<ResumeScore />} />
+                <Route path="/chat" element={<Chat />} />
+                {/* Placeholders for Plugins and Community */}
+                <Route path="/plugins" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/community" element={<Navigate to="/dashboard" replace />} />
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>
             </main>
