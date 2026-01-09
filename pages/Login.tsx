@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { db } from '../services/db';
 
 interface LoginProps {
@@ -8,10 +8,26 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ onSuccess, onRegisterClick }) => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        // Intercept browser back button
+        const handleBrowserBack = (e: PopStateEvent) => {
+            e.preventDefault();
+            navigate('/', { replace: true });
+        };
+
+        window.history.pushState(null, '', window.location.pathname);
+        window.addEventListener('popstate', handleBrowserBack);
+
+        return () => {
+            window.removeEventListener('popstate', handleBrowserBack);
+        };
+    }, [navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,8 +49,8 @@ const Login: React.FC<LoginProps> = ({ onSuccess, onRegisterClick }) => {
             <header className="sticky top-0 z-50 w-full border-b border-[#e6e9f4] dark:border-gray-800 bg-surface-light/90 dark:bg-background-dark/90 backdrop-blur-md transition-colors">
                 <div className="flex justify-center">
                     <div className="flex w-full max-w-[1280px] items-center justify-between px-4 py-4 md:px-10">
-                        <div className="flex items-center gap-3 text-primary dark:text-white cursor-pointer" onClick={() => window.location.href = '/'}>
-                            <div className="size-10 flex items-center justify-center bg-gradient-to-br from-[#0d33f2] to-[#1e40af] rounded-xl shadow-md">
+                        <div className="flex items-center gap-3 text-primary dark:text-white cursor-pointer group" onClick={() => navigate('/')}>
+                            <div className="size-10 flex items-center justify-center bg-gradient-to-br from-[#0d33f2] to-[#1e40af] rounded-xl shadow-md group-hover:scale-105 transition-transform">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M12 2L4 7V17L12 22L20 17V7L12 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     <circle cx="12" cy="12" r="3" fill="white" />
@@ -65,6 +81,15 @@ const Login: React.FC<LoginProps> = ({ onSuccess, onRegisterClick }) => {
                         <p className="mt-4 text-base text-[#47569e] dark:text-gray-400">
                             Sign in to manage your hiring pipeline.
                         </p>
+                        <div className="mt-4 flex justify-center">
+                            <button
+                                onClick={() => navigate('/')}
+                                className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:text-primary/80 transition-colors uppercase tracking-widest"
+                            >
+                                <span className="material-symbols-outlined text-sm">arrow_back</span>
+                                Back to Home
+                            </button>
+                        </div>
                     </div>
 
                     <div className="bg-white dark:bg-surface-dark py-8 px-4 shadow-xl shadow-gray-200/50 dark:shadow-black/20 rounded-xl border border-[#e6e9f4] dark:border-gray-800 sm:px-10">
